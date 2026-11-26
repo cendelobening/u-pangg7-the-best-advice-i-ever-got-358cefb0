@@ -17,8 +17,14 @@ ENTRY = (
 
 
 def main() -> None:
-    output_path = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output/entry.txt")
-    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    # MAKEFUN_OUTPUT_DIR names the writable output DIRECTORY; older
+    # callers may pass a full ".../entry.txt" file path instead, so
+    # normalize both shapes to a directory before joining the filename.
+    out = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    if out.endswith(".txt"):
+        out = os.path.dirname(out) or "."
+    os.makedirs(out, exist_ok=True)
+    output_path = os.path.join(out, "entry.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(ENTRY + "\n")
     os.chmod(output_path, 0o644)
